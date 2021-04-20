@@ -18,7 +18,7 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         bs = x.size(0)
-        features = self.cnn(x)
+        features = self.cnn.forward_features(x)
         # B H W C
         features = features.permute(0, 2, 3, 1)
         return features
@@ -51,7 +51,7 @@ class  Attention(nn.Module):
 
 class DecoderWithAttention(nn.Module):
     def __init__(self, attention_dim, embed_dim, decoder_dim, vocab_size,
-                 device, encoder_dim=512, dropout=0.5):
+                 device, encoder_dim=CFG.enc_size, dropout=0.5):
         '''
         :param attention_dim: input size of attention network
         :param embed_dim: input size of embeding network
@@ -138,7 +138,7 @@ class DecoderWithAttention(nn.Module):
         decode_lengths = (caption_lengths - 1).tolist()
 
         predictions = torch.zeros(
-            batch_size, max(decode_lengths), num_pixels).to(self.device)
+            batch_size, max(decode_lengths), vocab_size).to(self.device)
         alphas = torch.zeros(
             batch_size, max(decode_lengths), num_pixels).to(self.device)
 
