@@ -182,7 +182,7 @@ def train_loop(folds, fold):
     val_idxs = folds[folds['fold'] == fold].index
 
     train_folds = folds.loc[trn_idxs].reset_index(drop=True)
-    valid_folds = folds.loc[val_idxs].reset_idndex(drop=True)
+    valid_folds = folds.loc[val_idxs].reset_index(drop=True)
     valid_labels = valid_folds['InChI'].values
     train_dataset = TrainDataset(train_folds, tokenizer,
                                  transform=get_transforms(data='train'))
@@ -224,7 +224,7 @@ def train_loop(folds, fold):
     encoder = Encoder(CFG.model_name, pretrained=True)
     encoder.to(device)
     encoder_optimizer = Adam(encoder.parameters(), lr=CFG.encoder_lr,
-                             weight_decay=CFG.weight_, amsgrad=False)
+                             weight_decay=CFG.weight_decay, amsgrad=False)
     encoder_scheduler = get_scheduler(encoder_optimizer)
 
     decoder = DecoderWithAttention(attention_dim=CFG.attention_dim,
@@ -308,7 +308,7 @@ if CFG.debug:
     train = train.sample(
         n= CFG.samp_size, random_state=CFG.seed).reset_index(drop=True)
     '''
-
+train['file_path'] = train['image_id'].apply(get_train_file_path)
 train_dataset = TrainDataset(train, tokenizer,
                              transform=get_transforms(data='train'))
 folds = train.copy()

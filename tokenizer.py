@@ -2,9 +2,9 @@ import os
 import pickle as pkl
 import pandas as pd
 import re
-import tqdm
+from tqdm.auto import tqdm
 from utils import CFG
-
+tqdm.pandas()
 
 def split_form(form):
     string = ''
@@ -139,5 +139,5 @@ else:
         length = len(seq) - 2       # removed sos and eos
         lengths.append(length)
     train['InChI_length'] = lengths
-    train.to_pickle('train2.pkl')
+    train.to_pickle(CFG.prep_path + 'train2.pkl')
     print('Saved preprocessed train.pkl')

@@ -63,9 +63,10 @@ def init_logger(log_file='inference.log'):
     handler2.setFormatter(Formatter("%(message)s"))
     logger.addHandler(handler1)
     logger.addHandler(handler2)
+    return logger
 
 
-LOGGER = init_logger
+LOGGER = init_logger()
 
 
 def seed_torch(seed=42):

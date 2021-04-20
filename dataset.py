@@ -2,7 +2,7 @@ from torch.utils.data import DataLoader, Dataset
 import torch
 import cv2
 import numpy as np
-import albumerations as A
+import albumentations as A
 from torch.nn.utils.rnn import pad_sequence
 from tokenizer import Tokenizer
 from utils import CFG
@@ -38,7 +38,7 @@ class TrainDataset(Dataset):
         self.tokenizer = tokenizer
         self.file_paths = df['file_path'].values
         self.labels = df['InChI_text'].values
-        self.save_dir
+        self.save_dir = 'preprocessed'
         self.transform = transform
 
     def __len__(self):
