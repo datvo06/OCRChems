@@ -6,6 +6,7 @@ import albumentations as A
 from torch.nn.utils.rnn import pad_sequence
 from tokenizer import Tokenizer
 from utils import CFG
+from tokenizer import tokenizer
 
 class TestDataset(Dataset):
     def __init__(self, df, transform=None):
@@ -58,12 +59,12 @@ class TrainDataset(Dataset):
         return image, torch.LongTensor(label), label_length
 
 
-def bms_collate(batch, tokenizer: Tokenizer):
+def bms_collate(batch):
     imgs, labels, label_lengths = [], [], []
     for data_point in batch:
         imgs.append(data_point[0])
         labels.append(data_point[1])
         label_lengths.append(data_point[2])
     labels = pad_sequence(labels, batch_first=True,
-                          padding_value=tokenizer.stoi['pad'])
+                          padding_value=tokenizer.stoi['<pad>'])
     return torch.stack(imgs), labels, torch.stack(label_lengths).reshape(-1, 1)
