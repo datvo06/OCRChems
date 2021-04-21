@@ -1,13 +1,9 @@
 albumentations==0.5.2
-apex @ file:///home/conda/feedstock_root/build_artifacts/nvidia-apex_1606155230282/work
-attrs @ file:///home/conda/feedstock_root/build_artifacts/attrs_1605083924122/work
 certifi==2020.12.5
-cxxfilt @ file:///home/conda/feedstock_root/build_artifacts/cxxfilt_1602414617009/work
 cycler==0.10.0
 decorator==4.4.2
 imageio==2.9.0
 imgaug==0.4.0
-iniconfig @ file:///home/conda/feedstock_root/build_artifacts/iniconfig_1603384189793/work
 joblib==1.0.1
 kiwisolver==1.3.1
 levenshtein==0.12.0
@@ -15,33 +11,22 @@ matplotlib==3.4.1
 mkl-fft==1.3.0
 mkl-random==1.1.1
 mkl-service==2.3.0
-more-itertools @ file:///home/conda/feedstock_root/build_artifacts/more-itertools_1612756563342/work
 networkx==2.5.1
-numpy @ file:///tmp/build/80754af9/numpy_and_numpy_base_1603570489231/work
 olefile==0.46
 opencv-python==4.5.1.48
 opencv-python-headless==4.5.1.48
-packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1612459636436/work
 pandas==1.2.4
-Pillow @ file:///tmp/build/80754af9/pillow_1617383569452/work
-pluggy @ file:///home/conda/feedstock_root/build_artifacts/pluggy_1610318077870/work
-py @ file:///home/conda/feedstock_root/build_artifacts/py_1607783655754/work
 pyparsing==2.4.7
 pytest==6.2.3
-python-dateutil @ file:///home/ktietz/src/ci/python-dateutil_1611928101742/work
-pytz @ file:///tmp/build/80754af9/pytz_1612215392582/work
 PyWavelets==1.1.1
 PyYAML==5.3.1
 scikit-image==0.18.1
 scikit-learn==0.24.1
 scipy==1.6.2
 Shapely==1.7.1
-six @ file:///tmp/build/80754af9/six_1605205327372/work
 threadpoolctl==2.1.0
 tifffile==2021.4.8
-toml @ file:///home/conda/feedstock_root/build_artifacts/toml_1604308577558/work
 torch==1.8.1
 torchaudio==0.8.0a0+e4e171a
 torchvision==0.9.1
-tqdm @ file:///home/conda/feedstock_root/build_artifacts/tqdm_1617680194207/work
-typing-extensions @ file:///home/ktietz/src/ci_mi/typing_extensions_1612808209620/work
+timm==0.4.5
