@@ -239,6 +239,17 @@ def train_loop(folds, fold):
                              weight_decay=CFG.weight_decay,
                              amsgrad=False)
     decoder_scheduler = get_scheduler(decoder_optimizer)
+
+    if os.path.exists(CFG.prev_model):
+        LOGGER.info(f"Loading training state from: {CFG.prev_model}")
+        state_dicts = torch.load(CFG.prev_model)
+        encoder.load_state_dict(state_dicts['encoder'])
+        encoder_optimizer.load_state_dict(state_dicts['encoder_optimizer'])
+        encoder_scheduler.load_state_dict(state_dicts['encoder_scheduler'])
+        decoder.load_state_dict(state_dicts['decoder'])
+        decoder_optimizer.load_state_dict(state_dicts['decoder_optimizer'])
+        decoder_scheduler.load_state_dict(state_dicts['decoder_scheduler'])
+
     criterion = nn.CrossEntropyLoss(ignore_index=tokenizer.stoi["<pad>"])
 
     best_score = np.inf

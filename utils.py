@@ -23,7 +23,7 @@ class CFG:
     samp_size = 1000
     size = 288
     scheduler='CosineAnnealingLR'
-    epochs=1
+    epochs=10
     T_max = 4
     encoder_lr = 1e-4
     decoder_lr = 4e-4
@@ -42,7 +42,7 @@ class CFG:
     train=True
     train_path = "train/"
     prep_path = 'preprocessed-stuff/'
-    prev_model = './prp/muh_best.pth'
+    prev_model = './saved_model/efficientnet_b1_fold0_best.pth'
 
 def get_score(y_true, y_pred):
     scores = []
