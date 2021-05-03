@@ -302,7 +302,7 @@ def train_loop(folds, fold):
                         'decoder_scheduler': decoder_scheduler.state_dict(),
                         'text_preds': text_preds,
                         },
-                       OUTPUT_DIR + f'{CFG.model_name}_fold{fold}_best.pth')
+                       OUTPUT_DIR + f'{CFG.model_name}_fold{fold}_{best_score}.pth')
 
 
 def get_train_file_path(image_id):
