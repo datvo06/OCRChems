@@ -1,8 +1,8 @@
 from __future__ import print_function
-import tqdm
+from tqdm import tqdm
 import torch
 from utils import CFG
-from Tokenizer import tokenizer
+from tokenizer import tokenizer
 import numpy as np
 from model import Encoder, DecoderWithAttention
 from dataset import TestDataset, get_transforms
@@ -29,7 +29,7 @@ def inference(test_loader, encoder, decoder, tokenizer, device):
 
 
 def get_test_file_path(image_id):
-    return CFG.train_path + "{}/{}/{}/{}.png".format(
+    return CFG.test_path + "{}/{}/{}/{}.png".format(
         image_id[0], image_id[1], image_id[2], image_id
     )
 
@@ -40,6 +40,7 @@ if __name__ == '__main__':
     states = torch.load(CFG.pred_model, map_location=torch.device('cpu'))
     encoder = Encoder(CFG.model_name, pretrained=False)
     encoder.load_state_dict(states['encoder'])
+    encoder = encoder.to(device)
     decoder = DecoderWithAttention(attention_dim=CFG.attention_dim,
                                    embed_dim=CFG.embed_dim,
                                    decoder_dim=CFG.decoder_dim,
