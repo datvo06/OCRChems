@@ -7,6 +7,11 @@ from torch.nn.utils.rnn import pad_sequence
 from tokenizer import Tokenizer
 from utils import CFG
 from tokenizer import tokenizer
+from albumentations import (
+    Compose, OneOf, Normalize, Resize, RandomResizedCrop, RandomCrop,
+    HorizontalFlip, VerticalFlip, ShiftScaleRotate, Transpose
+)
+from albumentations.pytorch import ToTensorV2
 
 class TestDataset(Dataset):
     def __init__(self, df, transform=None):
@@ -68,3 +73,29 @@ def bms_collate(batch):
     labels = pad_sequence(labels, batch_first=True,
                           padding_value=tokenizer.stoi['<pad>'])
     return torch.stack(imgs), labels, torch.stack(label_lengths).reshape(-1, 1)
+
+
+def get_transforms(*, data):
+    if data == 'train':
+        return Compose([
+            Resize(CFG.size, CFG.size),
+            HorizontalFlip(p=0.5),
+            Transpose(p=0.5),
+            HorizontalFlip(p=0.5),
+            VerticalFlip(p=0.5),
+            ShiftScaleRotate(p=0.5),
+            Normalize(
+                mean=[0.485, 0.456, 0.406],
+                std=[0.229, 0.224, 0.225],
+            ),
+            ToTensorV2()
+        ])
+    elif data == 'valid':
+        return Compose([
+            Resize(CFG.size, CFG.size),
+            Normalize(
+                mean=[0.485, 0.456, 0.406],
+                std=[0.229, 0.224, 0.225],
+            ),
+            ToTensorV2()
+        ])

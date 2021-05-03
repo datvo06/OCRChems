@@ -196,20 +196,3 @@ class DecoderWithAttention(nn.Module):
                 break
             embeddings = self.embedding(torch.argmax(preds, -1))
         return predictions
-
-
-def inference(test_loader, encoder, decoder, tokenizer, device):
-    encoder.eval()
-    decoder.eval()
-    text_preds = []
-    tk0 = tqdm(test_loader, total=len(test_loader))
-    for images in tk0:
-        images = images.to(device)
-        with torch.no_grad():
-            features = encoder(images)
-            predictions = decoder.predict(features, CFG.max_len, tokenizer)
-        predicted_sequence = torch.argmax(predictions.detach().cpu(), -1).numpy()
-        _text_preds = tokenizer.predict_captions(predicted_sequence)
-        text_preds.append(_text_preds)
-    text_preds = np.concatenate(text_preds)
-    return text_preds

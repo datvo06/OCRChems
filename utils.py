@@ -41,8 +41,10 @@ class CFG:
     trn_fold = 0
     train=True
     train_path = "train/"
+    test_path = "test/"
     prep_path = 'preprocessed-stuff/'
     prev_model = './saved_model/efficientnet_b1_fold0_best.pth'
+    pred_model = './saved_model/efficientnet_b1_fold0_best.pth'
 
 def get_score(y_true, y_pred):
     scores = []
