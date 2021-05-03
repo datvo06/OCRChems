@@ -49,7 +49,7 @@ if __name__ == '__main__':
     decoder.load_state_dict(states['decoder'])
     decoder.to(device)
     test_dataset = TestDataset(test, get_transforms(data='valid'))
-    test_loader = DataLoader(test_dataset, batch_size= 256,
+    test_loader = DataLoader(test_dataset, batch_size=256,
                              shuffle=False, num_workers=CFG.num_workers)
     predictions = inference(test_loader, encoder, decoder, tokenizer, device)
     test['InChI'] = [f"InChI=1S/{text}" for text in predictions]
