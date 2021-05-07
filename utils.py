@@ -18,7 +18,7 @@ class CFG:
     max_len = 275
     print_freq = 10000
     num_workers=4
-    model_name = 'efficientnet_b1'
+    model_name = 'efficientnet_b1'      # vgg16 maybe?
     enc_size = 1280
     samp_size = 1000
     size = 288
