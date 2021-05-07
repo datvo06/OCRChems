@@ -1,2 +1,9 @@
 test/*
 *.swp
+*.zip
+*.csv
+train/
+__pycache__
+*.log
+*pth
+*pkl

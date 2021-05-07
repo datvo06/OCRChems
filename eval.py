@@ -8,6 +8,7 @@ from model import Encoder, DecoderWithAttention
 from dataset import TestDataset, get_transforms
 from torch.utils.data import DataLoader, Dataset
 import pandas as pd
+import sys
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -37,6 +38,9 @@ if __name__ == '__main__':
     test = pd.read_csv('sample_submission.csv')
     test['file_path'] = test['image_id'].apply(get_test_file_path)
     print(f'test.shape: {test.shape}')
+    model_path = CFG.pred_model
+    if len(sys.argv) > 1:
+        model_path = sys.argv[1]
     states = torch.load(CFG.pred_model, map_location=torch.device('cpu'))
     encoder = Encoder(CFG.model_name, pretrained=False)
     encoder.load_state_dict(states['encoder'])
