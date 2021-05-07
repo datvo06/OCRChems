@@ -17,18 +17,18 @@ class CFG:
     apex = False
     max_len = 275
     print_freq = 10000
-    num_workers=4
-    model_name = 'efficientnet_b1'      # vgg16 maybe?
-    enc_size = 1280
+    num_workers=4                       # Prev: 4
+    model_name = 'efficientnet_b3'      # vgg16, efficientnet_b7 maybe?
+    enc_size = 1536 # 1280 for b1, 1536 for b3
     samp_size = 1000
     size = 288
     scheduler='CosineAnnealingLR'
-    epochs=10
+    epochs=20
     T_max = 4
     encoder_lr = 1e-4
     decoder_lr = 4e-4
     min_lr = 1e-6
-    batch_size= 32
+    batch_size= 28
     weight_decay=1e-6
     gradient_accumulation_steps=1
     max_grad_norm=5
@@ -43,8 +43,8 @@ class CFG:
     train_path = "train/"
     test_path = "test/"
     prep_path = 'preprocessed-stuff/'
-    prev_model = './saved_model/efficientnet_b1_fold0_best.pth'
-    pred_model = './saved_model/efficientnet_b1_fold0_best.pth'
+    prev_model = './saved_model/efficientnet_b3_fold0_best.pth' #prev b1
+    pred_model = './saved_model/efficientnet_b3_fold0_best.pth'
 
 def get_score(y_true, y_pred):
     scores = []
