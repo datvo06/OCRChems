@@ -5,11 +5,16 @@ import timm
 import warnings
 from tqdm import tqdm
 from utils import CFG
+from layers import CoordConvNet
 
 class Encoder(nn.Module):
-    def __init__(self, model_name='resnet18', pretrained=False):
+    def __init__(self, model_name='resnet18', use_coord_net=False,
+                 pretrained=False):
         super().__init__()
         self.cnn = timm.create_model(model_name, pretrained=pretrained)
+        self.use_coord_net = use_coord_net
+        if self.use_coord_net:
+            self.cnn = CoordConvNet(self.cnn)
         '''
         self.n_features = self.cnn.fc.in_features
         self.cnn.global_pool = nn.Identity()
