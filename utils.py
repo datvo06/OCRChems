@@ -12,7 +12,7 @@ import Levenshtein
 # CFG
 # ====================================================
 
-class CFG:       # CFG_vgg16 coord
+class CFG_vgg16:       # CFG_vgg16 coord
     debug =  True
     apex = False
     max_len = 275
@@ -151,6 +151,9 @@ class CFG_eff_b1:   # CFG eff b1
     prep_path = 'preprocessed-stuff/'
     prev_model = './saved_model/efficientnet_b3_fold0_best.pth' #prev b1
     pred_model = './saved_model/efficientnet_b3_fold0_best.pth'
+    use_coord = False
+
+CFG = CFG_eff_b1
 
 def get_score(y_true, y_pred):
     scores = []

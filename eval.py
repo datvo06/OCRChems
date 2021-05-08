@@ -41,7 +41,7 @@ if __name__ == '__main__':
     model_path = CFG.pred_model
     if len(sys.argv) > 1:
         model_path = sys.argv[1]
-    states = torch.load(CFG.pred_model, map_location=torch.device('cpu'))
+    states = torch.load(model_path, map_location=torch.device('cpu'))
     encoder = Encoder(CFG.model_name, pretrained=False, use_coord_net=CFG.use_coord)
     encoder.load_state_dict(states['encoder'])
     encoder = encoder.to(device)
