@@ -5,6 +5,7 @@ RDLogger.DisableLog('rdApp.*')
 from pathlib import Path
 
 # Note: activate rdkit env before running this
+# my-rdkit-env
 
 def normalize_inchi(inchi):
     try:
