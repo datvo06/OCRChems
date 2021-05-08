@@ -83,6 +83,41 @@ class CFG_effv2:       # CFG_eff_v2
     pred_model = './saved_model/efficientnet_v2s_fold0_best.pth'
 
 
+class CFG_eff_b3_pruned:
+    debug =  True
+    apex = False
+    max_len = 275
+    print_freq = 10000
+    num_workers=4                       # Prev: 4
+    model_name = 'efficientnet_b3_pruned'      # vgg16, efficientnet_b7 maybe?
+    enc_size = 1536 # 1280 for b1, 1536 for b3
+    samp_size = 1000
+    size = 300
+    scheduler='CosineAnnealingLR'
+    epochs=20
+    T_max = 4
+    encoder_lr = 1e-4
+    decoder_lr = 4e-4
+    min_lr = 1e-6
+    batch_size= 28
+    weight_decay=1e-6
+    gradient_accumulation_steps=1
+    max_grad_norm=5
+    attention_dim=256
+    embed_dim=256
+    decoder_dim=512
+    dropout=0.5
+    seed=42
+    n_fold=5
+    trn_fold = 0
+    train=True
+    train_path = "train/"
+    test_path = "test/"
+    prep_path = 'preprocessed-stuff/'
+    prev_model = './saved_model/efficientnet_b3_pruned_fold0_best.pth' #prev b1
+    pred_model = './saved_model/efficientnet_b3_pruned_fold0_best.pth'
+
+
 class CFG_eff_b3:
     debug =  True
     apex = False
@@ -153,7 +188,7 @@ class CFG_eff_b1:   # CFG eff b1
     pred_model = './saved_model/efficientnet_b1_fold0_best.pth'
     use_coord = False
 
-CFG = CFG_eff_b1
+CFG = CFG_eff_b3_pruned
 
 def get_score(y_true, y_pred):
     scores = []
