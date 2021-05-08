@@ -22,15 +22,20 @@ if __name__=='__main__':
     norm_path = orig_path.with_name(orig_path.stem+'_norm.csv')
 
     # Do the job
-    N = norm_path.read_text().count('\n') if norm_path.exists() else 0
+    N = norm_path.read_text(encoding='UTF-8', errors='ignore').count('\n') if norm_path.exists() else 0
     print(N, 'number of predictions already normalized')
 
-    r = open(str(orig_path), 'r')
+    r = open(str(orig_path), 'r', errors='ignore')
     w = open(str(norm_path), 'a', buffering=1)
 
     for _ in range(N):
         r.readline()
-    line = r.readline()  # this line is the header or is where it segfaulted last time
+    try:
+        line = r.readline()  # this line is the header or is where it segfaulted last time
+    except:
+        print('error on this line: ')
+        print(line)
+        print(' ')
     w.write(line)
 
     for line in tqdm(r):
