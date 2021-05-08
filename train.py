@@ -194,7 +194,7 @@ def train_loop(folds, fold):
                 last_epoch=-1)
         return scheduler
 
-    encoder = Encoder(CFG.model_name, pretrained=True)
+    encoder = Encoder(CFG.model_name, pretrained=True, use_coord_net=CFG.use_coord)
     encoder.to(device)
     encoder_optimizer = Adam(encoder.parameters(), lr=CFG.encoder_lr,
                              weight_decay=CFG.weight_decay, amsgrad=False)

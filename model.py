@@ -12,8 +12,13 @@ class Encoder(nn.Module):
                  pretrained=False):
         super().__init__()
         self.cnn = timm.create_model(model_name, pretrained=pretrained)
+        self.used_model = model_name
+
         self.use_coord_net = use_coord_net
         if self.use_coord_net:
+            if not self.used_model.startswith('vgg'):
+                raise NotImplementedError
+            self.cnn.head = nn.Identity()
             self.cnn = CoordConvNet(self.cnn)
         '''
         self.n_features = self.cnn.fc.in_features
@@ -23,7 +28,13 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         bs = x.size(0)
-        features = self.cnn.forward_features(x)
+
+        if not self.use_coord_net:
+            if self.used_model.startswith('efficientnet') or self.used_model.startswith('vgg'):
+                features = self.cnn.forward_features(x)
+        else:
+            features = self.cnn(x)[-1]
+
         # B H W C
         features = features.permute(0, 2, 3, 1)
         return features
