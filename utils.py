@@ -124,7 +124,7 @@ class CFG_eff_b1:   # CFG eff b1
     max_len = 275
     print_freq = 10000
     num_workers=4                       # Prev: 4
-    model_name = 'efficientnet_b3'      # vgg16, efficientnet_b7 maybe?
+    model_name = 'efficientnet_b1'      # vgg16, efficientnet_b7 maybe?
     enc_size = 1280 # 1280 for b1, 1536 for b3
     samp_size = 1000
     size = 288
@@ -149,8 +149,8 @@ class CFG_eff_b1:   # CFG eff b1
     train_path = "train/"
     test_path = "test/"
     prep_path = 'preprocessed-stuff/'
-    prev_model = './saved_model/efficientnet_b3_fold0_best.pth' #prev b1
-    pred_model = './saved_model/efficientnet_b3_fold0_best.pth'
+    prev_model = './saved_model/efficientnet_b1_fold0_best.pth' #prev b1
+    pred_model = './saved_model/efficientnet_b1_fold0_best.pth'
     use_coord = False
 
 CFG = CFG_eff_b1
