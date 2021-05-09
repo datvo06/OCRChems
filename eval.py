@@ -18,8 +18,11 @@ def inference(test_loader, encoder, decoder, tokenizer, device):
     encoder.eval()
     decoder.eval()
     text_preds = []
-    tk0 = tqdm(test_loader, total=len(test_loader))
     
+    # k = 2
+    topk_decoder = TopKDecoder(decoder, 2, CFG.decoder_dim, CFG.max_len, tokenizer)
+    
+    tk0 = tqdm(test_loader, total=len(test_loader))
     for images in tk0:
         images = images.to(device)
         predictions = []
@@ -46,7 +49,6 @@ def inference(test_loader, encoder, decoder, tokenizer, device):
     text_preds = np.concatenate(text_preds)
     return text_preds
 
-
 def get_test_file_path(image_id):
     return CFG.test_path + "{}/{}/{}/{}.png".format(
         image_id[0], image_id[1], image_id[2], image_id
@@ -71,12 +73,9 @@ if __name__ == '__main__':
                                    device=device)
     decoder.load_state_dict(states['decoder'])
     decoder.to(device)
-    topk_decoder = TopKDecoder(decoder, 3, CFG.decoder_dim, CFG.max_len, tokenizer)
-
-
     test_dataset = TestDataset(test, get_transforms(data='valid'))
     test_loader = DataLoader(test_dataset, batch_size=256,
                              shuffle=False, num_workers=CFG.num_workers)
-    predictions = inference(test_loader, encoder, topk_decoder, tokenizer, device)
+    predictions = inference(test_loader, encoder, decoder, tokenizer, device)
     test['InChI'] = [f"InChI=1S/{text}" for text in predictions]
     test[['image_id', 'InChI']].to_csv('submission.csv', index=False)
