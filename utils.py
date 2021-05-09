@@ -116,6 +116,7 @@ class CFG_eff_b3_pruned:
     prep_path = 'preprocessed-stuff/'
     prev_model = './saved_model/efficientnet_b3_pruned_fold0_best.pth' #prev b1
     pred_model = './saved_model/efficientnet_b3_pruned_fold0_best.pth'
+    use_coord = False
 
 
 class CFG_eff_b3:
