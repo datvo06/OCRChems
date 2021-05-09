@@ -94,12 +94,12 @@ class CFG_eff_b3_pruned:
     samp_size = 1000
     size = 300
     scheduler='CosineAnnealingLR'
-    epochs=20
+    epochs=30
     T_max = 4
     encoder_lr = 1e-4
     decoder_lr = 4e-4
     min_lr = 1e-6
-    batch_size= 28
+    batch_size= 32
     weight_decay=1e-6
     gradient_accumulation_steps=1
     max_grad_norm=5
