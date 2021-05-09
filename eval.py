@@ -10,6 +10,8 @@ from torch.utils.data import DataLoader, Dataset
 import pandas as pd
 import sys
 
+from top_k_decoder import TopKDecoder
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def inference(test_loader, encoder, decoder, tokenizer, device):
@@ -17,14 +19,30 @@ def inference(test_loader, encoder, decoder, tokenizer, device):
     decoder.eval()
     text_preds = []
     tk0 = tqdm(test_loader, total=len(test_loader))
+    
     for images in tk0:
         images = images.to(device)
+        predictions = []
         with torch.no_grad():
-            features = encoder(images)
-            predictions = decoder.predict(features, CFG.max_len, tokenizer)
-        predicted_sequence = torch.argmax(predictions.detach().cpu(), -1).numpy()
-        _text_preds = tokenizer.predict_captions(predicted_sequence)
-        text_preds.append(_text_preds)
+            encoder_out = encoder(images)
+            batch_size = encoder_out.size(0)
+            encoder_dim = encoder_out.size(-1)
+            encoder_out = encoder_out.view(batch_size, -1, encoder_dim)
+            h, c = decoder.init_hidden_state(encoder_out)
+            hidden = (h.unsqueeze(0), c.unsqueeze(0))
+            
+            decoder_outputs, decoder_hidden, other = topk_decoder(None, hidden, encoder_out)
+            
+            for b in range(batch_size):
+                length = other['topk_length'][b][0]
+                tgt_id_seq = [other['topk_sequence'][di][b, 0, 0].item() for di in range(length)]
+                predictions.append(tgt_id_seq)
+            assert len(predictions) == batch_size
+            
+        predictions = tokenizer.predict_captions(predictions)
+        predictions = ['InChI=1S/' + p.replace('<sos>', '') for p in predictions]
+        # print(predictions[0])
+        text_preds.append(predictions)
     text_preds = np.concatenate(text_preds)
     return text_preds
 
@@ -53,9 +71,12 @@ if __name__ == '__main__':
                                    device=device)
     decoder.load_state_dict(states['decoder'])
     decoder.to(device)
+    topk_decoder = TopKDecoder(decoder, 3, CFG.decoder_dim, CFG.max_len, tokenizer)
+
+
     test_dataset = TestDataset(test, get_transforms(data='valid'))
     test_loader = DataLoader(test_dataset, batch_size=256,
                              shuffle=False, num_workers=CFG.num_workers)
-    predictions = inference(test_loader, encoder, decoder, tokenizer, device)
+    predictions = inference(test_loader, encoder, topk_decoder, tokenizer, device)
     test['InChI'] = [f"InChI=1S/{text}" for text in predictions]
     test[['image_id', 'InChI']].to_csv('submission.csv', index=False)
