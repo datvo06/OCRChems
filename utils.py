@@ -190,6 +190,7 @@ class CFG_eff_b1:   # CFG eff b1
     use_coord = False
 
 CFG = CFG_eff_b3_pruned
+# CFG = CFG_eff_b1
 
 def get_score(y_true, y_pred):
     scores = []
