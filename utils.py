@@ -121,7 +121,7 @@ class CFG_eff_b3_pruned:
 
 class CFG_eff_b3:
     debug =  True
-    apex = False
+    apex = True
     max_len = 275
     print_freq = 10000
     num_workers=4                       # Prev: 4
