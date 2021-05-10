@@ -212,10 +212,7 @@ def train_loop(folds, fold):
                              lr=CFG.decoder_lr,
                              weight_decay=CFG.weight_decay,
                              amsgrad=False)
-    if torch.cuda.device_count() > 1:
-      print("Let's use ", torch.cuda.device_count(), "GPUs!")
-      encoder = nn.DataParallel(encoder)
-      decoder = nn.DataParallel(decoder)
+    
     decoder_scheduler = get_scheduler(decoder_optimizer)
 
     if os.path.exists(CFG.prev_model):
@@ -227,6 +224,13 @@ def train_loop(folds, fold):
         decoder.load_state_dict(state_dicts['decoder'])
         decoder_optimizer.load_state_dict(state_dicts['decoder_optimizer'])
         decoder_scheduler.load_state_dict(state_dicts['decoder_scheduler'])
+
+    '''
+    if torch.cuda.device_count() > 1:
+      print("Let's use ", torch.cuda.device_count(), "GPUs!")
+      encoder = nn.DataParallel(encoder)
+      decoder = nn.DataParallel(decoder)
+    '''
 
     criterion = nn.CrossEntropyLoss(ignore_index=tokenizer.stoi["<pad>"])
 

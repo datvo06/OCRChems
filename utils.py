@@ -150,8 +150,9 @@ class CFG_eff_b3:
     train_path = "train/"
     test_path = "test/"
     prep_path = 'preprocessed-stuff/'
-    prev_model = './saved_model/efficientnet_b3_fold0_best.pth' #prev b1
+    prev_model = './saved_model/efficientnet_b3_fold0_6.299011216117549.pth' #prev b1
     pred_model = './saved_model/efficientnet_b3_fold0_best.pth'
+    use_coord=False
 
 
 class CFG_eff_b1:   # CFG eff b1
@@ -189,8 +190,9 @@ class CFG_eff_b1:   # CFG eff b1
     pred_model = './saved_model/efficientnet_b1_fold0_best.pth'
     use_coord = False
 
-CFG = CFG_eff_b3_pruned
+# CFG = CFG_eff_b3_pruned
 # CFG = CFG_eff_b1
+CFG = CFG_eff_b3
 
 def get_score(y_true, y_pred):
     scores = []
