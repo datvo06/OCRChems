@@ -193,8 +193,9 @@ def train_loop(folds, fold):
                 optimizer, T_0=CFG.T_0, T_mult=1, eta_min=CFG.min_lr,
                 last_epoch=-1)
         return scheduler
-
-    encoder = Encoder(CFG.model_name, pretrained=True, use_coord_net=CFG.use_coord)
+    pretrained=True
+    if os.path.exists(CFG.prev_model): pretrained=False
+    encoder = Encoder(CFG.model_name, pretrained=pretrained, use_coord_net=CFG.use_coord)
     encoder.to(device)
     encoder_optimizer = Adam(encoder.parameters(), lr=CFG.encoder_lr,
                              weight_decay=CFG.weight_decay, amsgrad=False)
@@ -211,6 +212,10 @@ def train_loop(folds, fold):
                              lr=CFG.decoder_lr,
                              weight_decay=CFG.weight_decay,
                              amsgrad=False)
+    if torch.cuda.device_count() > 1:
+      print("Let's use ", torch.cuda.device_count(), "GPUs!")
+      encoder = nn.DataParallel(encoder)
+      decoder = nn.DataParallel(decoder)
     decoder_scheduler = get_scheduler(decoder_optimizer)
 
     if os.path.exists(CFG.prev_model):
