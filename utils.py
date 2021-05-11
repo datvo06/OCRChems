@@ -121,7 +121,7 @@ class CFG_eff_b3_pruned:
 
 class CFG_eff_b3:
     debug =  True
-    apex = True
+    apex = False
     max_len = 275
     print_freq = 10000
     num_workers=4                       # Prev: 4
@@ -135,7 +135,7 @@ class CFG_eff_b3:
     encoder_lr = 1e-4
     decoder_lr = 4e-4
     min_lr = 1e-6
-    batch_size= 28
+    batch_size=28
     weight_decay=1e-6
     gradient_accumulation_steps=1
     max_grad_norm=5

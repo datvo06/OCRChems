@@ -84,16 +84,13 @@ def train_fn(train_loader, encoder, decoder, criterion,
         # record losses
         losses.update(loss.item(), batch_size)
         if CFG.gradient_accumulation_steps > 1:
-            loss = loss / CFG.gradient_accumulation_steps
+            if CFG.apex:
+                with torch.cuda.amp.autocast():
+                    loss = scaler.scale(loss) / CFG.gradient_accumulation_steps
+            else:
+                loss = loss / CFG.gradient_accumulation_steps
 
-        if CFG.apex:
-            scaler.scale(loss).backward()
-            '''
-            with amp.scale_loss(loss, decoder_optimizer) as scaled_loss:
-                scaled_loss.backward()
-                '''
-        else:
-            loss.backward()
+        loss.backward()
 
         encoder_grad_norm = torch.nn.utils.clip_grad_norm_(
             encoder.parameters(), CFG.max_grad_norm)
