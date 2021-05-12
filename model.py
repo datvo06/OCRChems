@@ -212,3 +212,24 @@ class DecoderWithAttention(nn.Module):
                 break
             embeddings = self.embedding(torch.argmax(preds, -1))
         return predictions
+
+    def forward_step(self, prev_tokens, hidden, encoder_out, function):
+        assert len(hidden) == 2
+        h, c = hidden
+        h, c = h.squeeze(0), c.squeeze(0)
+
+        embeddings = self.embedding(prev_tokens)
+        if embeddings.dim() == 3:
+            embeddings = embeddings.squeeze(1)
+
+        attention_weighted_encoding, alpha = self.attention(encoder_out, h)
+        gate = self.sigmoid(self.f_beta(h))  # gating scalar, (batch_size_t, encoder_dim)
+        attention_weighted_encoding = gate * attention_weighted_encoding
+        h, c = self.decode_step(
+            torch.cat([embeddings, attention_weighted_encoding], dim=1),
+            (h, c))  # (batch_size_t, decoder_dim)
+        preds = self.fc(self.dropout(h))  # (batch_size_t, vocab_size)
+
+        hidden = (h.unsqueeze(0), c.unsqueeze(0))
+        predicted_softmax = function(preds, dim=1)
+        return predicted_softmax, hidden, None
