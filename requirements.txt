@@ -7,10 +7,10 @@ imgaug==0.4.0
 joblib==1.0.1
 kiwisolver==1.3.1
 levenshtein==0.12.0
-matplotlib==3.4.1
-mkl-fft==1.3.0
-mkl-random==1.1.1
-mkl-service==2.3.0
+matplotlib
+mkl-fft
+mkl-random
+mkl-service
 networkx==2.5.1
 olefile==0.46
 opencv-python==4.5.1.48
@@ -27,6 +27,5 @@ Shapely==1.7.1
 threadpoolctl==2.1.0
 tifffile==2021.4.8
 torch==1.8.1
-torchaudio==0.8.0a0+e4e171a
 torchvision==0.9.1
 timm==0.4.5
