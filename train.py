@@ -50,6 +50,8 @@ def train_fn(train_loader, encoder, decoder, criterion,
     decoder.train()
     start = end = time.time()
     global_step = 0
+    scaler = torch.cuda.amp.GradScaler()
+
     for step, (images, labels, label_lengths) in enumerate(train_loader):
         # measure data loading time
         data_time.update(time.time() - end)
@@ -57,33 +59,51 @@ def train_fn(train_loader, encoder, decoder, criterion,
         labels = labels.to(device)
         label_lengths = label_lengths.to(device)
         batch_size = images.size(0)
-        features = encoder(images)
-        predictions, caps_sorted, decode_lengths, alphas, sort_ind = decoder(
-            features, labels, label_lengths)
-        targets = caps_sorted[:, 1:]
-        predictions = pack_padded_sequence(predictions, decode_lengths,
+        if CFG.apex:
+            with torch.cuda.amp.autocast():
+                features = encoder(images)
+                predictions, caps_sorted, decode_lengths, alphas, sort_ind = decoder(
+                    features, labels, label_lengths)
+                targets = caps_sorted[:, 1:]
+                predictions = pack_padded_sequence(predictions, decode_lengths,
+                                                   batch_first=True).data
+                targets = pack_padded_sequence(targets, decode_lengths,
+                                               batch_first=True).data
+                loss = criterion(predictions, targets)
+        else:
+            features = encoder(images)
+            predictions, caps_sorted, decode_lengths, alphas, sort_ind = decoder(
+                features, labels, label_lengths)
+            targets = caps_sorted[:, 1:]
+            predictions = pack_padded_sequence(predictions, decode_lengths,
+                                               batch_first=True).data
+            targets = pack_padded_sequence(targets, decode_lengths,
                                            batch_first=True).data
-        targets = pack_padded_sequence(targets, decode_lengths,
-                                       batch_first=True).data
-        loss = criterion(predictions, targets)
+            loss = criterion(predictions, targets)
+
         # record losses
         losses.update(loss.item(), batch_size)
         if CFG.gradient_accumulation_steps > 1:
-            loss = loss / CFG.gradient_accumulation_steps
+            if CFG.apex:
+                with torch.cuda.amp.autocast():
+                    loss = scaler.scale(loss) / CFG.gradient_accumulation_steps
+            else:
+                loss = loss / CFG.gradient_accumulation_steps
 
-        if CFG.apex:
-            with amp.scale_loss(loss, decoder_optimizer) as scaled_loss:
-                scaled_loss.backward()
-        else:
-            loss.backward()
+        loss.backward()
 
         encoder_grad_norm = torch.nn.utils.clip_grad_norm_(
             encoder.parameters(), CFG.max_grad_norm)
         decoder_grad_norm = torch.nn.utils.clip_grad_norm_(
             decoder.parameters(), CFG.max_grad_norm)
         if (step + 1) % CFG.gradient_accumulation_steps == 0:
-            encoder_optimizer.step()
-            decoder_optimizer.step()
+            if CFG.apex:
+                scaler.step(encoder_optimizer)
+                scaler.step(decoder_optimizer)
+                scaler.update()
+            else:
+                encoder_optimizer.step()
+                decoder_optimizer.step()
             encoder_optimizer.zero_grad()
             decoder_optimizer.zero_grad()
             global_step += 1
@@ -212,10 +232,7 @@ def train_loop(folds, fold):
                              lr=CFG.decoder_lr,
                              weight_decay=CFG.weight_decay,
                              amsgrad=False)
-    if torch.cuda.device_count() > 1:
-      print("Let's use ", torch.cuda.device_count(), "GPUs!")
-      encoder = nn.DataParallel(encoder)
-      decoder = nn.DataParallel(decoder)
+    
     decoder_scheduler = get_scheduler(decoder_optimizer)
 
     if os.path.exists(CFG.prev_model):
@@ -227,6 +244,13 @@ def train_loop(folds, fold):
         decoder.load_state_dict(state_dicts['decoder'])
         decoder_optimizer.load_state_dict(state_dicts['decoder_optimizer'])
         decoder_scheduler.load_state_dict(state_dicts['decoder_scheduler'])
+
+    '''
+    if torch.cuda.device_count() > 1:
+      print("Let's use ", torch.cuda.device_count(), "GPUs!")
+      encoder = nn.DataParallel(encoder)
+      decoder = nn.DataParallel(decoder)
+    '''
 
     criterion = nn.CrossEntropyLoss(ignore_index=tokenizer.stoi["<pad>"])
 
