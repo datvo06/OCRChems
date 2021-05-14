@@ -183,13 +183,13 @@ class CFG_eff_b1:   # CFG eff b1
     trn_fold = 0
     train=True
     train_path = "train/"
-    test_path = "test/"
+    test_path = "/home/theengineer/dataDrive3/OCR/chem_image_read/test/"
     prep_path = 'preprocessed-stuff/'
-    prev_model = './saved_model/efficientnet_b1_fold0_best.pth' #prev b1
-    pred_model = './saved_model/efficientnet_b1_fold0_best.pth'
+    prev_model = '/home/theengineer/dataDrive3/OCR/chem_image_read/saved_model/efficientnet_b1_fold0_best.pth' #prev b1
+    pred_model = '/home/theengineer/dataDrive3/OCR/chem_image_read/saved_model/efficientnet_b1_fold0_best.pth'
     use_coord = False
 
-CFG = CFG_eff_b3_pruned
+CFG = CFG_eff_b1
 
 def get_score(y_true, y_pred):
     scores = []
