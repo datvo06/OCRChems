@@ -38,7 +38,7 @@ class CFG_vgg16:       # CFG_vgg16 coord
     decoder_dim=512
     dropout=0.5
     seed=42
-    n_fold=5
+    n_fold=9
     trn_fold = 0
     train=True
     train_path = "train/"
@@ -92,14 +92,14 @@ class CFG_eff_b3_pruned:
     model_name = 'efficientnet_b3_pruned'      # vgg16, efficientnet_b7 maybe?
     enc_size = 1536 # 1280 for b1, 1536 for b3
     samp_size = 1000
-    size = 300
+    size = 320
     scheduler='CosineAnnealingLR'
     epochs=30
     T_max = 4
     encoder_lr = 1e-4
     decoder_lr = 4e-4
     min_lr = 1e-6
-    batch_size= 32
+    batch_size= 30
     weight_decay=1e-6
     gradient_accumulation_steps=1
     max_grad_norm=5
@@ -108,13 +108,13 @@ class CFG_eff_b3_pruned:
     decoder_dim=512
     dropout=0.5
     seed=42
-    n_fold=5
+    n_fold=12
     trn_fold = 0
     train=True
     train_path = "train/"
     test_path = "test/"
     prep_path = 'preprocessed-stuff/'
-    prev_model = './saved_model/efficientnet_b3_pruned_fold0_16.487418477924585.pth' #prev b1
+    prev_model = './saved_model/efficientnet_b3_pruned_fold0_5.017451189881982.pth' #prev b1
     pred_model = './saved_model/efficientnet_b3_pruned_fold0_best.pth'
     use_coord = False
 
@@ -128,14 +128,14 @@ class CFG_eff_b3:
     model_name = 'efficientnet_b3'      # vgg16, efficientnet_b7 maybe?
     enc_size = 1536 # 1280 for b1, 1536 for b3
     samp_size = 1000
-    size = 288
+    size = 320
     scheduler='CosineAnnealingLR'
     epochs=20
     T_max = 4
     encoder_lr = 1e-4
     decoder_lr = 4e-4
     min_lr = 1e-6
-    batch_size=28
+    batch_size=20
     weight_decay=1e-6
     gradient_accumulation_steps=1
     max_grad_norm=5
@@ -144,18 +144,54 @@ class CFG_eff_b3:
     decoder_dim=512
     dropout=0.5
     seed=42
-    n_fold=5
+    n_fold=10
     trn_fold = 0
     train=True
     train_path = "train/"
     test_path = "test/"
     prep_path = 'preprocessed-stuff/'
-    prev_model = './saved_model/efficientnet_b3_fold0_6.299011216117549.pth' #prev b1
+    prev_model = './saved_model/efficientnet_b3_fold0_5.702079869977188.pth' #prev b1
     pred_model = './saved_model/efficientnet_b3_fold0_best.pth'
     use_coord=False
 
 
 class CFG_eff_b1:   # CFG eff b1
+    debug =  True
+    apex = False
+    max_len = 275
+    print_freq = 10000
+    num_workers=4                       # Prev: 4
+    model_name = 'efficientnet_b1'      # vgg16, efficientnet_b7 maybe?
+    enc_size = 1280 # 1280 for b1, 1536 for b3
+    samp_size = 1000
+    size = 320
+    scheduler='CosineAnnealingLR'
+    epochs=20
+    T_max = 4
+    encoder_lr = 1e-4
+    decoder_lr = 4e-4
+    min_lr = 1e-6
+    batch_size= 30
+    weight_decay=1e-6
+    gradient_accumulation_steps=1
+    max_grad_norm=5
+    attention_dim=256
+    embed_dim=256
+    decoder_dim=512
+    dropout=0.5
+    seed=42
+    n_fold=15
+    trn_fold = 0
+    train=True
+    train_path = "train/"
+    test_path = "test/"
+    prep_path = 'preprocessed-stuff/'
+    prev_model = './saved_model/efficientnet_b1_fold0_3.457585832793634.pth' #prev b1
+    pred_model = './saved_model/efficientnet_b1_fold0_best.pth'
+    use_coord = False
+
+
+class CFG_eff_b1_old:   # CFG eff b1
     debug =  True
     apex = False
     max_len = 275
@@ -171,7 +207,7 @@ class CFG_eff_b1:   # CFG eff b1
     encoder_lr = 1e-4
     decoder_lr = 4e-4
     min_lr = 1e-6
-    batch_size= 32
+    batch_size= 30
     weight_decay=1e-6
     gradient_accumulation_steps=1
     max_grad_norm=5
@@ -180,7 +216,7 @@ class CFG_eff_b1:   # CFG eff b1
     decoder_dim=512
     dropout=0.5
     seed=42
-    n_fold=5
+    n_fold=15
     trn_fold = 0
     train=True
     train_path = "train/"
@@ -190,9 +226,11 @@ class CFG_eff_b1:   # CFG eff b1
     pred_model = './saved_model/efficientnet_b1_fold0_best.pth'
     use_coord = False
 
+
 # CFG = CFG_eff_b3_pruned
-# CFG = CFG_eff_b1
-CFG = CFG_eff_b3
+CFG = CFG_eff_b1
+# CFG = CFG_eff_b3
+# CFG = CFG_eff_b1_old
 
 def get_score(y_true, y_pred):
     scores = []

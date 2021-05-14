@@ -3,6 +3,7 @@ from rdkit import Chem
 from rdkit import RDLogger
 RDLogger.DisableLog('rdApp.*')
 from pathlib import Path
+import sys
 
 # Note: activate rdkit env before running this
 # my-rdkit-env
@@ -18,7 +19,7 @@ def normalize_inchi(inchi):
 # while [ 1 ]; do python normalize_inchis.py && break; done
 if __name__=='__main__':
     # Input & Output
-    orig_path = Path('submission.csv')
+    orig_path = Path(sys.argv[1])
     norm_path = orig_path.with_name(orig_path.stem+'_norm.csv')
 
     # Do the job

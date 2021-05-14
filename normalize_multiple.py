@@ -20,11 +20,12 @@ def normalize_inchi(inchi):
 if __name__=='__main__':
     # Input & Output
     orig_paths = sys.argv[1:]
-    norm_path = 'submission_multiple_norm.csv'
+    norm_path = Path('submission_multiple_norm.csv')
 
     # Do the job
     N = norm_path.read_text(encoding='UTF-8', errors='ignore').count('\n') if norm_path.exists() else 0
     print(N, 'number of predictions already normalized')
+    print(orig_paths)
 
     rs = [open(str(orig_path), 'r', errors='ignore') for orig_path in orig_paths]
     w = open(str(norm_path), 'a', buffering=1)
