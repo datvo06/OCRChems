@@ -61,6 +61,7 @@ def inference_old(test_loader, encoder, decoder, tokenizer, device):
             predictions = decoder.predict(features, CFG.max_len, tokenizer)
         predicted_sequence = torch.argmax(predictions.detach().cpu(), -1).numpy()
         _text_preds = tokenizer.predict_captions(predicted_sequence)
+        _text_preds = [f"InChI=1S/{text}" for text in _text_preds]
         text_preds.append(_text_preds)
     text_preds = np.concatenate(text_preds)
     return text_preds
@@ -93,5 +94,5 @@ if __name__ == '__main__':
     test_loader = DataLoader(test_dataset, batch_size=256,
                              shuffle=False, num_workers=CFG.num_workers)
     predictions = inference_old(test_loader, encoder, decoder, tokenizer, device)
-    test['InChI'] = [f"InChI=1S/{text}" for text in predictions]
-    test[['image_id', 'InChI']].to_csv('submission.csv', index=False)
+    # test['InChI'] = [f"InChI=1S/{text}" for text in predictions]
+    test[['image_id', 'InChI']].to_csv('submission' + CFG.model_name + '_no_bs.csv', index=False)
