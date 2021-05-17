@@ -20,7 +20,7 @@ def inference(test_loader, encoder, decoder, tokenizer, device):
     text_preds = []
 
     # k = 2
-    topk_decoder = TopKDecoder(decoder, 2, CFG.decoder_dim, CFG.max_len, tokenizer)
+    topk_decoder = TopKDecoder(decoder, 5, CFG.decoder_dim, CFG.max_len, tokenizer)
 
     tk0 = tqdm(test_loader, total=len(test_loader))
     for images in tk0:
@@ -44,7 +44,6 @@ def inference(test_loader, encoder, decoder, tokenizer, device):
 
         predictions = tokenizer.predict_captions(predictions)
         predictions = ['InChI=1S/' + p.replace('<sos>', '') for p in predictions]
-        # print(predictions[0])
         text_preds.append(predictions)
     text_preds = np.concatenate(text_preds)
     return text_preds
@@ -91,8 +90,9 @@ if __name__ == '__main__':
     decoder.load_state_dict(states['decoder'])
     decoder.to(device)
     test_dataset = TestDataset(test, get_transforms(data='valid'))
-    test_loader = DataLoader(test_dataset, batch_size=256,
+    test_loader = DataLoader(test_dataset, batch_size=180,
                              shuffle=False, num_workers=CFG.num_workers)
-    predictions = inference_old(test_loader, encoder, decoder, tokenizer, device)
+    predictions = inference(test_loader, encoder, decoder, tokenizer, device)
+    test['InChI'] = [text for text in predictions]
     # test['InChI'] = [f"InChI=1S/{text}" for text in predictions]
-    test[['image_id', 'InChI']].to_csv('submission' + CFG.model_name + '_no_bs.csv', index=False)
+    test[['image_id', 'InChI']].to_csv('submission_' + CFG.model_name + '_288_bs5.csv', index=False)
