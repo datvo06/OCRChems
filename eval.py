@@ -95,4 +95,4 @@ if __name__ == '__main__':
     predictions = inference(test_loader, encoder, decoder, tokenizer, device)
     test['InChI'] = [text for text in predictions]
     # test['InChI'] = [f"InChI=1S/{text}" for text in predictions]
-    test[['image_id', 'InChI']].to_csv('submission_' + CFG.model_name + '_288_bs5.csv', index=False)
+    test[['image_id', 'InChI']].to_csv('submission_' + CFG.model_name + '_' + str(CFG.size) + '_bs5.csv', index=False)

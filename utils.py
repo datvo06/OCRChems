@@ -155,6 +155,43 @@ class CFG_eff_b3:
     use_coord=False
 
 
+class CFG_eff_b3_old:
+    debug =  True
+    apex = False
+    max_len = 275
+    print_freq = 10000
+    num_workers=4                       # Prev: 4
+    model_name = 'efficientnet_b3'      # vgg16, efficientnet_b7 maybe?
+    enc_size = 1536 # 1280 for b1, 1536 for b3
+    samp_size = 1000
+    size = 288
+    scheduler='CosineAnnealingLR'
+    epochs=20
+    T_max = 4
+    encoder_lr = 1e-4
+    decoder_lr = 4e-4
+    min_lr = 1e-6
+    batch_size=20
+    weight_decay=1e-6
+    gradient_accumulation_steps=1
+    max_grad_norm=5
+    attention_dim=256
+    embed_dim=256
+    decoder_dim=512
+    dropout=0.5
+    seed=42
+    n_fold=10
+    trn_fold = 0
+    train=True
+    train_path = "train/"
+    test_path = "test/"
+    prep_path = 'preprocessed-stuff/'
+    prev_model = './saved_model/efficientnet_b3_old_best_3.549.pth'
+    pred_model = './saved_model/efficientnet_b3_fold0_best.pth'
+    use_coord=False
+
+
+
 class CFG_eff_b1:   # CFG eff b1
     debug =  True
     apex = False
@@ -230,7 +267,8 @@ class CFG_eff_b1_old:   # CFG eff b1
 # CFG = CFG_eff_b3_pruned
 # CFG = CFG_eff_b1
 # CFG = CFG_eff_b3
-CFG = CFG_eff_b1_old
+CFG = CFG_eff_b3_old
+# CFG = CFG_eff_b1_old
 
 
 def get_score(y_true, y_pred):
