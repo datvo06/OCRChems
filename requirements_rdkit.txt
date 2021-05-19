@@ -1,9 +1,16 @@
+cairocffi==1.2.0
+CairoSVG==2.5.2
 certifi==2020.12.5
+cffi==1.14.5
+cssselect2==0.4.1
+cssutils==2.2.0
 cycler==0.10.0
 decorator==4.4.2
+defusedxml==0.7.1
 greenlet @ file:///home/conda/feedstock_root/build_artifacts/greenlet_1620327502296/work
 imageio==2.9.0
 kiwisolver @ file:///home/conda/feedstock_root/build_artifacts/kiwisolver_1610099772044/work
+lxml==4.6.3
 matplotlib @ file:///home/conda/feedstock_root/build_artifacts/matplotlib-suite_1617212787161/work
 networkx==2.5.1
 numpy @ file:///home/conda/feedstock_root/build_artifacts/numpy_1616933154495/work
@@ -12,15 +19,18 @@ opencv-python==4.5.2.52
 pandas==1.2.4
 Pillow @ file:///home/conda/feedstock_root/build_artifacts/pillow_1617818070330/work
 pycairo==1.20.0
+pycparser==2.20
 pyparsing==2.4.7
 python-dateutil==2.8.1
 pytz @ file:///home/conda/feedstock_root/build_artifacts/pytz_1612179539967/work
 PyWavelets==1.1.1
-reportlab==3.5.67
+reportlab==3.5.65
 scikit-image==0.18.1
 scipy==1.6.3
 six @ file:///home/conda/feedstock_root/build_artifacts/six_1620240208055/work
 SQLAlchemy @ file:///home/conda/feedstock_root/build_artifacts/sqlalchemy_1620346197241/work
 tifffile==2021.4.8
+tinycss2==1.1.0
 tornado @ file:///home/conda/feedstock_root/build_artifacts/tornado_1610094708661/work
 tqdm==4.60.0
+webencodings==0.5.1
