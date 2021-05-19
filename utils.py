@@ -301,6 +301,24 @@ class CFG_eff_b1_old:   # CFG eff b1
     use_coord = False
 
 
+class CFG_tnt:
+    debug = False
+    size = 384
+    text_dim = 384
+    decoder_dim = 384
+    num_layer = 3
+    num_head = 8
+    ff_dim = 1024
+    max_len = 300
+    train_path = "train/"
+    test_path = "test/"
+    pixel_scale = 0.8
+    encoder_lr = 1e-3
+    decoder_lr = 4e-3
+    prev_model = None
+    batch_size = 64
+    fold = 3
+
 # CFG = CFG_eff_b3_pruned
 # CFG = CFG_eff_b1
 # CFG = CFG_eff_b3
@@ -372,6 +390,23 @@ def time_since(since, percent):
     es = s / (percent)
     rs = es - s
     return '%s (remain %s)' % (as_minutes(s), as_minutes(rs))
+
+def time_to_str(t, mode='min'):
+    if mode=='min':
+        t  = int(t)/60
+        hr = t//60
+        min = t%60
+        return '%2d hr %02d min'%(hr,min)
+
+    elif mode=='sec':
+        t   = int(t)
+        min = t//60
+        sec = t%60
+        return '%2d min %02d sec'%(min,sec)
+
+    else:
+        raise NotImplementedError
+
 
 
 if not os.path.exists(CFG.prep_path):
