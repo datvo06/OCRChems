@@ -312,12 +312,21 @@ class CFG_tnt:
     max_len = 300
     train_path = "train/"
     test_path = "test/"
+    data_dir = "."
+    patch_dump_dir = "patch_dump"
+
+    pixel_pad = 3
+    patch_size = 16
     pixel_scale = 0.8
+
     encoder_lr = 1e-3
     decoder_lr = 4e-3
     prev_model = None
     batch_size = 64
     fold = 3
+    out_dir = "saved_model_"
+
+    use_mixed = False
 
 # CFG = CFG_eff_b3_pruned
 # CFG = CFG_eff_b1
@@ -411,3 +420,8 @@ def time_to_str(t, mode='min'):
 
 if not os.path.exists(CFG.prep_path):
     os.makedirs(CFG.prep_path)
+
+def write_pickle_to_file(pickle_file, x):
+    with open(pickle_file, 'wb') as f:
+        pickle.dump(x, f, pickle.HIGHEST_PROTOCOL)
+

@@ -7,7 +7,20 @@ import timer
 from utils import CFG_tnt as CFG, time_to_str, LOGGER
 from model_tnt import seq_cross_entropy_loss, seq_focal_cross_entropy_loss
 from tokenizer import tokenizer, train
-from patch_dataset import BmsDataset, make_fold
+from patch_dataset import BmsDataset, make_fold, DataLoader, null_collate
+from torch.utils.data.sampler import RandomSampler, SequentialSampler
+from torch.nn.parallel.data_parallel import data_parallel
+from model_tnt import TnTNet
+from optim_tnt import Lookahead, RAdam, get_learning_rate
+import torch.cuda.amp as amp
+
+
+
+def get_train_file_path(image_id):
+    return CFG.train_path + '{}/{}/{}/{}.png'.format(
+        image_id[0], image_id[1], image_id[2], image_id
+    )
+
 
 
 def np_loss_cross_entropy(probability, truth):
@@ -86,7 +99,7 @@ def do_valid(net, tokenizer, valid_loader):
 
 def run_train():
     fold = CFG.fold
-    out_dir = f'/ext_data2/comvis/khanhdtq/bms/tnt_patch16_s{CFG.pixel_scale:.3f}/fold%d' % fold
+    out_dir = f'{CFG.out_dir}{CFG.pixel_scale:.3f}/fold%d' % CFG.fold
     os.makedirs(out_dir, exist_ok=True)
     initial_checkpoint = None
 
@@ -96,7 +109,8 @@ def run_train():
 
 
     ## setup  ----------------------------------------
-    for f in ['checkpoint', 'train', 'valid', 'backup']: os.makedirs(out_dir + '/' + f, exist_ok=True)
+    for f in ['checkpoint', 'train', 'valid', 'backup']:
+        os.makedirs(out_dir + '/' + f, exist_ok=True)
     # backup_project_as_zip(PROJECT_PATH, out_dir +'/backup/code.train.%s.zip'%IDENTIFIER)
 
     LOGGER.info('\tout_dir  = %s\n' % out_dir)
@@ -132,14 +146,15 @@ def run_train():
         collate_fn=null_collate,
     )
 
-    log.write('train_dataset : \n%s\n' % (train_dataset))
-    log.write('valid_dataset : \n%s\n' % (valid_dataset))
-    log.write('\n')
+    LOGGER.info('train_dataset : \n%s\n' % (train_dataset))
+    LOGGER.info('valid_dataset : \n%s\n' % (valid_dataset))
+    LOGGER.info('\n')
 
     ## net ----------------------------------------
-    log.write('** net setting **\n')
-    # scaler = amp.GradScaler()
-    net = Net().cuda() #AmpNet().cuda()
+    LOGGER.info('** net setting **\n')
+    if CFG.use_mixed:
+        scaler = amp.GradScaler()
+    net = TnTNet().cuda()  #  AmpNet().cuda()
 
 
     if initial_checkpoint is not None:
@@ -161,8 +176,8 @@ def run_train():
         start_iteration = 0
         start_epoch = 0
 
-    log.write('\tinitial_checkpoint = %s\n' % initial_checkpoint)
-    log.write('\n')
+    LOGGER.info('\tinitial_checkpoint = %s\n' % initial_checkpoint)
+    LOGGER.info('\n')
 
     # -----------------------------------------------
     if 0:  ##freeze
@@ -176,17 +191,17 @@ def run_train():
     iter_valid = 1000
     iter_save = list(range(0, num_iteration, 1000))  # 1*1000
 
-    log.write('optimizer\n  %s\n' % (optimizer))
-    log.write('\n')
+    LOGGER.info('optimizer\n  %s\n' % (optimizer))
+    LOGGER.info('\n')
 
     ## start training here! ##############################################
-    log.write('** start training here! **\n')
-    log.write('   is_mixed_precision = %s \n' % str(is_mixed_precision))
-    log.write('   batch_size = %d\n' % (batch_size))
-    log.write('   experiment = %s\n' % str(__file__.split('/')[-2:]))
-    log.write('                      |----- VALID ---|---- TRAIN/BATCH --------------\n')
-    log.write('rate     iter   epoch | loss  lb(lev) | loss0  loss1  | time          \n')
-    log.write('----------------------------------------------------------------------\n')
+    LOGGER.info('** start training here! **\n')
+    LOGGER.info('   is_mixed_precision = %s \n' % str(CFG.use_mixed))
+    LOGGER.info('   batch_size = %d\n' % (batch_size))
+    LOGGER.info('   experiment = %s\n' % str(__file__.split('/')[-2:]))
+    LOGGER.info('                      |----- VALID ---|---- TRAIN/BATCH --------------\n')
+    LOGGER.info('rate     iter   epoch | loss  lb(lev) | loss0  loss1  | time          \n')
+    LOGGER.info('----------------------------------------------------------------------\n')
              # 0.00000   0.00* 0.00  | 0.000  0.000  | 0.000  0.000  |  0 hr 00 min
 
     def message(mode='print'):
@@ -239,7 +254,7 @@ def run_train():
 
             if (iteration % iter_log == 0):
                 print('\r', end='', flush=True)
-                log.write(message(mode='log') + '\n')
+                LOGGER.info(message(mode='log') + '\n')
 
             # learning rate schduler ------------
             rate = get_learning_rate(optimizer)
@@ -260,7 +275,7 @@ def run_train():
             net.train()
             optimizer.zero_grad()
 
-            if is_mixed_precision:
+            if CFG.use_mixed:
                 with amp.autocast():
                     #assert(False)
                     #logit = data_parallel(net, (patch, coord, token, patch_pad_mask, token_pad_mask)) #net(image, token, length)
@@ -302,20 +317,9 @@ def run_train():
             if debug:
                 pass
 
-    log.write('\n')
+    LOGGER.info('\n')
 
 
 # main #################################################################
 if __name__ == '__main__':
     run_train()
-    train['file_path'] = train['image_id'].apply(get_train_file_path)
-    train_dataset = TrainDataset(train, tokenizer,
-                                transform=get_transforms(data='train'))
-    folds = train.copy()
-    Fold = StratifiedKFold(n_splits=CFG.n_fold, shuffle=True,
-                        random_state=CFG.seed)
-    for n, (train_index, val_index) in enumerate(
-            Fold.split(folds, folds['InChI_length'])):
-        folds.loc[val_index, 'fold'] = int(n)
-    folds['fold'] = folds['fold'].astype(int)
-    train_loop(folds, CFG.trn_fold)

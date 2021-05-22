@@ -1,17 +1,26 @@
-from include import *
-from utils import YNakamaTokenizer, read_pickle_from_file
-from configure import *
-from patch import *
+from tokenizer import tokenizer
+from utils import read_pickle_from_file, CFG_tnt as CFG
+import pandas as pd
+import nump as np
+import os
+from torch.utils.data import DataLoader, Dataset
+import torch
+from patch import uncompress_array
+
+
+import collections
+from collections import defaultdict
+
 
 def make_fold(mode='train-1'):
     if 'train' in mode:
-        df = read_pickle_from_file(data_dir+'/df_train.more.csv.pickle')
-        df_fold = pd.read_csv(data_dir+'/df_fold.csv')
+        df = read_pickle_from_file(CFG.data_dir+'/df_train.more.csv.pickle')
+        df_fold = pd.read_csv(CFG.data_dir+'/df_fold.csv')
         # df_fold = pd.read_csv(data_dir+'/df_fold.fine.csv')
-        df_meta = pd.read_csv(data_dir+'/df_train_image_meta.csv')
+        df_meta = pd.read_csv(CFG.data_dir+'/df_train_image_meta.csv')
         df = df.merge(df_fold, on='image_id')
         df = df.merge(df_meta, on='image_id')
-        df.loc[:,'path']=f'train_patch16_s{pixel_scale:.3f}'
+        df.loc[:,'path']=f'train_patch16_s{CFG.pixel_scale:.3f}'
 
         df['fold'] = df['fold'].astype(int)
         #print(df.groupby(['fold']).size()) #404_031
@@ -24,9 +33,9 @@ def make_fold(mode='train-1'):
 
     # Index(['image_id', 'InChI'], dtype='object')
     if 'test' in mode:
-        df = pd.read_csv(data_dir+'/sample_submission.csv')
-        # df = pd.read_csv(data_dir+'/submit_lb3.80.csv')
-        df_meta = pd.read_csv(data_dir+'/df_test_image_meta.csv')
+        df = pd.read_csv(CFG.data_dir+'/sample_submission.csv')
+        # df = pd.read_csv(CFG.data_dir+'/submit_lb3.80.csv')
+        df_meta = pd.read_csv(CFG.data_dir+'/df_test_image_meta.csv')
         df = df.merge(df_meta, on='image_id')
 
         df.loc[:, 'path'] = 'test'
@@ -47,13 +56,6 @@ def pad_sequence_to_max_length(sequence, max_length, padding_value):
         L = len(s)
         pad_sequence[b, :L, ...] = s
     return pad_sequence
-
-def load_tokenizer():
-    tokenizer = YNakamaTokenizer(is_load=True)
-    print('len(tokenizer) : vocab_size', len(tokenizer))
-    for k,v in STOI.items():
-        assert  tokenizer.stoi[k]==v
-    return tokenizer
 
 def null_augment(r):
     return r
@@ -85,21 +87,24 @@ class BmsDataset(Dataset):
         d = self.df.iloc[index]
         token = d.sequence
 
-        patch_file = os.path.join(patch_data_dir, f'train_patch16_s{pixel_scale:.3f}/%s/%s/%s/%s.pickle'%(d.image_id[0],
-                                                            d.image_id[1], d.image_id[2], d.image_id))
+        # Have to preprocess all files to patches first
+        patch_file = os.path.join(CFG.patch_dump_dir,
+                                  f'train_patch16_s{CFG.pixel_scale:.3f}/%s/%s/%s/%s.pickle'%(d.image_id[0],
+                                                                                          d.image_id[1], d.image_id[2], d.image_id))
         k = read_pickle_from_file(patch_file)
 
         patch = uncompress_array(k['patch'])
         patch = np.concatenate([
-            np.zeros((1, patch_size+2*pixel_pad, patch_size+2*pixel_pad), np.uint8),
+            np.zeros((1, CFG.patch_size+2*CFG.pixel_pad,
+                      CFG.patch_size+2*CFG.pixel_pad), np.uint8),
             patch],0) #cls token
 
         coord  = k['coord']
         w = k['width' ]
         h = k['height']
 
-        h = h // patch_size -1
-        w = w // patch_size -1
+        h = h // CFG.patch_size -1
+        w = w // CFG.patch_size -1
         coord = np.insert(coord, 0, [h, w], 0) #cls token
 
         r = {
@@ -143,24 +148,29 @@ class TestBmsDataset(Dataset):
         token = d.sequence
 
         if self.mode == 'test':
-            patch_file = os.path.join(patch_data_dir, 'test_patch16_s{pixel_scale:.1f}/%s/%s/%s/%s.pickle'%(d.image_id[0],
-                                                            d.image_id[1], d.image_id[2], d.image_id))
+            patch_file = os.path.join(CFG.patch_dump_dir,
+                                      'test_patch16_s{CFG.pixel_scale:.1f}/%s/%s/%s/%s.pickle'%(d.image_id[0],
+                                      d.image_id[1], d.image_id[2], d.image_id))
         elif self.mode == 'valid':
-            patch_file = os.path.join(patch_data_dir, 'train_patch16_s{pixel_scale:.3f}/%s/%s/%s/%s.pickle'%(d.image_id[0],
-                                                            d.image_id[1], d.image_id[2], d.image_id))
+            patch_file = os.path.join(CFG.patch_dump_dir,
+                                      'train_patch16_s{CFG.pixel_scale:.3f}/%s/%s/%s/%s.pickle'%(
+                                          d.image_id[0],
+                                          d.image_id[1], d.image_id[2], d.image_id))
         k = read_pickle_from_file(patch_file)
 
         patch = uncompress_array(k['patch'])
+        # Adding class token
         patch = np.concatenate([
-            np.zeros((1, patch_size+2*pixel_pad, patch_size+2*pixel_pad), np.uint8),
+            np.zeros((1, CFG.patch_size+2*CFG.pixel_pad,
+                      CFG.patch_size+2*CFG.pixel_pad), np.uint8),
             patch],0) #cls token
 
         coord  = k['coord']
         w = k['width' ]
         h = k['height']
 
-        h = h // patch_size -1
-        w = w // patch_size -1
+        h = h // CFG.patch_size -1
+        w = w // CFG.patch_size -1
         coord = np.insert(coord, 0, [h, w], 0) #cls token
 
         r = {
@@ -191,7 +201,7 @@ def null_collate(batch, is_sort_decreasing_length=True):
     collate['length'] = [len(l) for l in collate['token']]
 
     token  = [np.array(t,np.int32) for t in collate['token']]
-    token  = pad_sequence_to_max_length(token, max_length=max_length, padding_value=STOI['<pad>'])
+    token  = pad_sequence_to_max_length(token, max_length=CFG.max_len, padding_value=tokenizer.stoi['<pad>'])
     collate['token'] = torch.from_numpy(token).long()
 
     max_of_length = max(collate['length'])
@@ -206,7 +216,9 @@ def null_collate(batch, is_sort_decreasing_length=True):
 
     max_of_num_patch = max(collate['num_patch'])
     patch_pad_mask  = np.zeros((batch_size, max_of_num_patch, max_of_num_patch))
-    patch = np.full((batch_size, max_of_num_patch, patch_size+2*pixel_pad, patch_size+2*pixel_pad),255) #pad as 255
+    patch = np.full((batch_size, max_of_num_patch,
+                     CFG.patch_size+2*CFG.pixel_pad,
+                     CFG.patch_size+2*CFG.pixel_pad),255) #pad as 255
     coord = np.zeros((batch_size, max_of_num_patch, 2))
     for b in range(batch_size):
         N = collate['num_patch'][b]
@@ -218,4 +230,3 @@ def null_collate(batch, is_sort_decreasing_length=True):
     collate['coord'] = torch.from_numpy(coord).long()
     collate['patch_pad_mask' ] = torch.from_numpy(patch_pad_mask).byte()
     return collate
-
