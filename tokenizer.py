@@ -141,3 +141,6 @@ else:
     train['InChI_length'] = lengths
     train.to_pickle(CFG.prep_path + 'train2.pkl')
     print('Saved preprocessed train.pkl')
+
+if os.path.exists("extra_gen.csv"):
+    train_3 = pd.read_csv("extra_gen.csv")
