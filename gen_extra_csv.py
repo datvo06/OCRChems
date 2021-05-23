@@ -21,7 +21,10 @@ if not os.path.exists('extra_gen.csv'):
         inchi_1 = inchi.split("/")[1]
         inchi_text = split_form(inchi_1) + ' ' +  split_form2(
             '/'.join(inchi.split('/')[2:]))
-        seq = tokenizer.text_to_sequence(inchi_text)
+        try:
+            seq = tokenizer.text_to_sequence(inchi_text)
+        except:
+            continue
         length = len(seq) - 2       # removed sos and eos
         out_file.write(f"{i},\"{fp}\",{length},\"{inchi_text}\"\n")
     out_file.close()
