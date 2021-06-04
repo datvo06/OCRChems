@@ -257,7 +257,8 @@ class CFG_eff_b1_big_size:   # CFG eff b1
     trn_fold = 0
     train=True
     train_path = "train/"
-    test_path = "test/"
+    test_path = "aligned_test/"
+    # test_path = "test/"
     prep_path = 'preprocessed-stuff/'
     prev_model = './saved_model/efficientnet_b1_fold0_3.2892104813739538.pth'
     pred_model = './saved_model/efficientnet_b1_fold0_best.pth'
@@ -294,7 +295,8 @@ class CFG_eff_b1_old:   # CFG eff b1
     trn_fold = 0
     train=True
     train_path = "train/"
-    test_path = "test/"
+    test_path = "aligned_test/"
+    # test_path = "test/"
     prep_path = 'preprocessed-stuff/'
     prev_model = './saved_model/efficientnet_b1_fold0_3.2892104813739538.pth'
     pred_model = './saved_model/efficientnet_b1_fold0_best.pth'

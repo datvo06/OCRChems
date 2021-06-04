@@ -35,10 +35,6 @@ np.set_printoptions(edgeitems=30, linewidth=180)
 print('RDKit version:', rdkit.__version__)
 # Use a specific version of RDKit with known characteristics so that we can reliably manipulate output SVG.
 
-TRAIN_LABELS = pd.read_csv(TRAIN_LABELS_PATH)
-print(f'Read {len(TRAIN_LABELS)} training labels.')
-
-
 def one_in(n):
     return np.random.randint(n) == 0 and True or False
 
@@ -203,5 +199,9 @@ if __name__ == '__main__':
     for i in range(start, end):
         if os.path.exists(os.path.join(save_dir, str(i) + ".png")):
             continue
-        img_pil = get_random_molecule_image(i)
-        img_pil.save(os.path.join(save_dir, str(i) + ".png"))
+        try:
+          img_pil = get_random_molecule_image(i)
+          img_pil.save(os.path.join(save_dir, str(i) + ".png"))
+        except:
+          print("error, cant write file \n")
+          continue
